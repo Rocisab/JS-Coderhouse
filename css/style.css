@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans:wght@800&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Oswald', sans-serif;
+}
+body {
+        background-image: url(../img/7f834687-40e2-48fa-9afb-a1d0f5b4335c\ \(2\).webp); 
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+.principal {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center; 
+        height: 100vh;
+        text-align: center; 
+    }
+
+#mensaje, #bolsa {
+    margin: 20px 0px;
+}
+
+#bolsa {
+    color: green;
+}
+
+.verdura-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+    flex: 0 1 18%;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+}
+
+.verdura-card img {
+    width: 100px;
+    height: 100px;
+}
+
+#verduras-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}

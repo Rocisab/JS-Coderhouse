@@ -5,10 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/style.css">
     <script defer src="./js/script.js"></script>
-    <title>Document</title>
+    <title>Compras en la Verdulería</title>
 </head>
+
 <body>
-    <h1>Tienda orgánica</h1>
-    
-</body>
+
+    <section class="principal"> 
+    <h1>Tienda Orgánica</h1>
+    <p>De la tierra a tu mesa</p>
+    <div id="login-section">
+        <label for="password">Ingresa tu contraseña:</label>
+        <input type="password" id="password">
+        <button onclick="login()">Ingresar</button>
+    </div>
+    <div id="main-section" style="display: none;">
+        <p id="saldo">Saldo: $10000</p>
+        <div id="bolsa">Elementos en tu bolsón de verduras: Vacío</div>
+        <div>
+            <button onclick="recargarSaldo()">Recargar Saldo</button>
+            <button onclick="elegirVerduras()">Elegir Verduras</button>
+            <button onclick="comprarBolson()">Comprar Bolsón</button>
+        </div>
+        <div id="verduras-section" style="display: none;"></div>
+        <div id="recargar-section" style="display: none; margin-top: 20px;">
+            <label for="recarga">Monto a Recargar:</label>
+            <input type="number" id="recarga">
+            <button onclick="recargar()">Recargar</button>
+        </div>
+        <div id="mensaje"></div>
+    </div>
+</section>
+    </body>
+
 </html>
