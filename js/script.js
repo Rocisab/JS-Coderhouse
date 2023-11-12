@@ -1,12 +1,49 @@
 let savedPassword = 'verdurita86';
 let saldo = localStorage.getItem('saldo') ? parseInt(localStorage.getItem('saldo')) : 10000;
-const verduras = ['Zanahoria', 'Papa', 'Tomate', 'Espinaca', 'Morrón'];
-const precios = [2000, 1500, 2500, 3000, 1800];
-const pesos = [0.22, 1.31, 0.12, 0.15, 0.25];
 const imagenes = [
     'zanahoria.jpg', 'papa.jpg', 'tomate.jpg', 'espinaca.jpg', 'morron.jpg'
 ];
 let bolsaVerduras = [];
+
+// Objeto para representar una verdura
+class Verdura {
+    constructor(nombre, precio, peso, imagen) {
+        this.nombre = nombre;
+        this.precio = precio;
+        this.peso = peso;
+        this.imagen = imagen;
+    }
+}
+
+// Array para las verduras disponibles
+const bolsas = [];
+
+// Cargar datos desde un archivo JSON local
+fetch('./data/datos.json')
+    .then(response => response.json())
+    .then(data => {
+        // Procesar los datos cargados
+        bolsas.push(...data.verduras);
+        generarTarjetasVerduras();
+    })
+    .catch(error => {
+        console.error('Error al cargar los datos:', error);
+    });
+
+// Agregar una verdura al bolsón
+function agregarVerdura(index) {
+    bolsaVerduras.push(index);
+    actualizarBolsa();
+}
+
+// Eliminar una verdura del bolsón
+function eliminarVerdura(index) {
+    const position = bolsaVerduras.indexOf(index);
+    if (position > -1) {
+        bolsaVerduras.splice(position, 1);
+    }
+    actualizarBolsa();
+}
 
 //Ingreso
 function login() {
@@ -16,7 +53,11 @@ function login() {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('main-section').style.display = 'block';
     } else {
-        mostrarMensaje('Contraseña incorrecta. Intenta de nuevo.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Contraseña incorrecta. Intenta de nuevo.'
+        });
     }
 }
 
@@ -29,48 +70,86 @@ function guardarSaldo() {
 function recargar() {
     const recargaInput = document.getElementById('recarga');
     const monto = parseInt(recargaInput.value);
+
     if (!isNaN(monto) && monto > 0) {
-        saldo += monto;
-        mostrarMensaje('Recarga exitosa. Tu nuevo saldo es $' + saldo);
-        document.getElementById('saldo').innerText = 'Saldo: $' + saldo;
-        guardarSaldo(); 
+        Swal.fire({
+            title: '¿Confirmar Recarga?',
+            text: `Estás a punto de recargar $${monto} a tu saldo. ¿Deseas continuar?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, recargar',
+            cancelButtonText: 'No, cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                saldo += monto;
+                Swal.fire(
+                    '¡Recarga Exitosa!',
+                    `Tu nuevo saldo es $${saldo}.`,
+                    'success'
+                );
+                document.getElementById('saldo').innerText = 'Saldo: $' + saldo;
+                guardarSaldo();
+            }
+        });
     } else {
-        mostrarMensaje('El monto ingresado no es válido');
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'El monto ingresado no es válido'
+        });
     }
 }
 
 //Da formato de lectura al bolsón
 function formatBolsaVerduras(bolsaVerduras) {
-  return bolsaVerduras.map(verdura => `${verdura.nombre}`).join(', ');
+    return bolsaVerduras.map(verdura => `${verdura.nombre}`).join(', ');
 }
 
 //Compra de Bolsón
 function comprarBolson() {
-  if (bolsaVerduras.length === 0) {
-      mostrarMensaje('Tu bolsón está vacío.');
-      return;
-  }
-  let total = 0;
+    if (bolsaVerduras.length === 0) {
+        mostrarMensaje('Tu bolsón está vacío.');
+        return;
+    }
 
-  // Calcular el peso total
-  let pesoTotal = 0;
-  bolsaVerduras.forEach(index => pesoTotal += pesos[index]);
+    let total = bolsaVerduras.reduce((acc, v) => acc + bolsas[v].precio, 0);
 
-  // Obtener el contenido del bolsón
-  const contenidoBolson = bolsaVerduras.map(index => verduras[index]).join(', ');
+    // Calcular el peso total
+    let pesoTotal = bolsaVerduras.reduce((totalPeso, v) => totalPeso + bolsas[v].peso, 0);
+    pesoTotal = Math.round(pesoTotal * 10) / 10;
 
-  bolsaVerduras.forEach(v => total += precios[v]);
-  if (saldo >= total) {
-      saldo -= total;
-      mostrarMensaje('Compra realizada con éxito. Te enviaremos un bolsón que contiene: ' + contenidoBolson + 
-      '\nPeso total: ' + pesoTotal + ' kg\nTu nuevo saldo es $' + saldo);
-      document.getElementById('saldo').innerText = 'Saldo: $' + saldo;
-      guardarSaldo(); 
-      bolsaVerduras = [];
-      actualizarBolsa();
-  } else {
-      mostrarMensaje('No tienes suficiente saldo para realizar esta compra.');
-  }
+    // Obtener el contenido del bolsón
+    const contenidoBolson = bolsaVerduras.map(v => bolsas[v].nombre).join(', ');
+
+    if (saldo >= total) {
+        Swal.fire({
+            title: '¿Confirmar Compra?',
+            text: `El total de tu compra es $${total}. ¿Deseas proceder?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, ¡comprar!',
+            cancelButtonText: 'No, cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                saldo -= total;
+                Swal.fire(
+                    '¡Compra Realizada!',
+                    `Te enviaremos un bolsón que contiene:<br><b>${contenidoBolson}</b><br>Peso total: <b>${pesoTotal} kg</b><br>Tu nuevo saldo es <b>$${saldo}</b>`,
+                    'success'
+                );
+                document.getElementById('saldo').innerText = 'Saldo: $' + saldo;
+                guardarSaldo(); 
+                bolsaVerduras = [];
+                actualizarBolsa();
+            }
+        });
+    } else {
+        mostrarMensaje('No tienes suficiente saldo para realizar esta compra.');
+    }
 }
 
 function recargarSaldo() {
@@ -84,14 +163,8 @@ function recargarSaldo() {
 function elegirVerduras() {
     const verdurasSection = document.getElementById('verduras-section');
     const recargarSection = document.getElementById('recargar-section');
-    recargarSection.style.display = 'none';
-    verdurasSection.style.display = verdurasSection.style.display === 'none' ? 'flex' : 'none';
-}
-
-//Agrega una verdura al bolsón
-function agregarVerdura(index) {
-    bolsaVerduras.push(index);
-    actualizarBolsa();
+    recargarSection.style.display = 'none'; // Oculta la sección de recarga
+    verdurasSection.style.display = 'flex'; // Muestra la sección de verduras
 }
 
 //Elimina una verdura del bolsón
@@ -117,7 +190,7 @@ function actualizarBolsa() {
     } else {
         let contenido = 'Elementos en tu bolsón de verduras: ';
         bolsaVerduras.forEach(v => {
-            contenido += verduras[v] + ', ';
+            contenido += bolsas[v].nombre + ', ';
         });
         bolsaDiv.innerText = contenido.slice(0, -2);
     }
@@ -126,14 +199,16 @@ function actualizarBolsa() {
 //Muestra las verduras en forma de tarjetas
 function generarTarjetasVerduras() {
     const verdurasSection = document.getElementById('verduras-section');
-    verduras.forEach((verdura, index) => {
+    // Limpia el contenido previo del contenedor de verduras
+    verdurasSection.innerHTML = ''; 
+    bolsas.forEach((verdura, index) => {
         const card = document.createElement('div');
         card.className = 'verdura-card';
         card.innerHTML = `
-            <img src="/img/${imagenes[index]}" alt="${verdura}">
-            <h3>${verdura}</h3>
-            <p>Precio: $${precios[index]}</p>
-            <p>Peso: ${pesos[index]} kg</p>
+            <img src="/img/${verdura.imagen}" alt="${verdura.nombre}">
+            <h3>${verdura.nombre}</h3>
+            <p>Precio: $${verdura.precio}</p>
+            <p class="mb5">Peso: ${verdura.peso} kg</p>
             <button onclick="agregarVerdura(${index})">Agregar al bolsón</button>
             <button onclick="eliminarVerdura(${index})">Eliminar del bolsón</button>
         `;

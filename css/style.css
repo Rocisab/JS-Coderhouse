@@ -3,13 +3,36 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Playpen Sans', sans-serif;
 }
 body {
         background-image: url(../img/7f834687-40e2-48fa-9afb-a1d0f5b4335c\ \(2\).webp); 
         background-size: cover;
         background-repeat: no-repeat;
     }
+
+h1 {
+    font-size: 48px;
+}
+
+
+button {
+    border: 0;
+    border-radius: 0.25em;
+    background: initial;
+    padding: 10px 20px;
+    background-color: #359c78;
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
+input {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
 
 .principal {
         display: flex;
@@ -47,4 +70,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
+}
+
+.mb5{
+    margin-bottom: 5px;
 }
